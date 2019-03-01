@@ -1,0 +1,8 @@
+﻿
+numpy
+Pillow
+
+
+
+intrans -   imadjust()
+        -   
