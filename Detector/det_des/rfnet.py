@@ -17,7 +17,6 @@ material_path = "/home/wang/workspace/CVToolbox/Detector/det_des/material"
 RFNET_DBOW_path="/home/wang/workspace/data/rgbd_dataset_freiburg1_desk/RFNet_DBOW"
 img_path = os.listdir(material_path)
 
-
 img1 = cv2.imread(os.path.join(material_path, img_path[0]))
 img2 = cv2.imread(os.path.join(material_path, img_path[1]))
 
