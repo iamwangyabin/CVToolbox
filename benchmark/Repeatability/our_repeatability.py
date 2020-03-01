@@ -7,7 +7,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 import sys
-sys.path.extend(['/home/wang/workspace/RFSLAM_offline/RFNET/rfnet/'])
+sys.path.extend(['/home/wang/workspace/FasterNet/NASNet_0.1'])
 from hpatch_dataset import (
     HpatchDataset,
     Grayscale,
@@ -19,10 +19,15 @@ from config import cfg
 from utils.math_utils import pairwise_distances
 from utils.train_utils import parse_batch
 
-from model.rf_des import HardNetNeiMask
-from model.rf_det_so import RFDetSO
-from model.rf_net_so import RFNetSO
 
+from model.det import RFDet
+from model.des import HardNetNeiMask
+from model.network import Network
+from config import cfg
+from torchvision import transforms
+from torch.utils.data import DataLoader
+from utils.train_utils import parse_batch
+from hpatch_dataset import *
 
 
 
@@ -80,10 +85,14 @@ if __name__ == '__main__':
     parser.add_argument('--data', default='e', type=str)  # dataset
     args = parser.parse_args()
 
+    # CUDA
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda:0" if use_cuda else "cpu")
-    model_file = "/home/wang/workspace/CVToolbox/benchmark/evaluationMMA/model/e121_NN_0.480_NNT_0.655_NNDR_0.813_MeanMS_0.649.pth.tar"
-    det = RFDetSO(
+
+    model_file = "/home/wang/workspace/CVToolbox/benchmark/evaluationMMA/model/e068_NN_0.429_NNT_0.612_NNDR_0.869_MeanMS_0.637.pth.tar"
+
+    # Creating CNN model
+    det = RFDet(
         cfg.TRAIN.score_com_strength,
         cfg.TRAIN.scale_com_strength,
         cfg.TRAIN.NMS_THRESH,
@@ -97,13 +106,12 @@ if __name__ == '__main__':
         cfg.MODEL.scale_list,
     )
     des = HardNetNeiMask(cfg.HARDNET.MARGIN, cfg.MODEL.COO_THRSH)
-    model = RFNetSO(
-        det, des, cfg.LOSS.SCORE, cfg.LOSS.PAIR, cfg.PATCH.SIZE, args.k,
+    model = Network(
+        det, des, cfg.LOSS.SCORE, cfg.LOSS.PAIR, cfg.PATCH.SIZE, args.k
     )
-    model = model.to(device)
+    model = model.to(device=device)
     checkpoint = torch.load(model_file)
     model.load_state_dict(checkpoint["state_dict"])
-    model.eval()
 
     random.seed(cfg.PROJ.SEED)
     torch.manual_seed(cfg.PROJ.SEED)
@@ -163,8 +171,8 @@ if __name__ == '__main__':
             im1_data, im1_info, homo12, im2_data, im2_info, homo21, im1_raw, im2_raw = parse_batch(sample_batched, device)
 
             # (angle, class_id, octave, pt, response, size)
-            scale1, kp1, des1 = model.inference(im1_data, im1_info, im1_raw)
-            scale2, kp2, des2 = model.inference(im2_data, im2_info, im2_raw)
+            scale1, kp1, des1, _, _, _ = model.inference(im1_data, im1_info, im1_raw)
+            scale2, kp2, des2, _, _, _ = model.inference(im2_data, im2_info, im2_raw)
 
             kp1c = np.array([[kp[2].cpu().numpy(), kp[1].cpu().numpy()] for kp in kp1])
             kp2c = np.array([[kp[2].cpu().numpy(), kp[1].cpu().numpy()] for kp in kp2])
