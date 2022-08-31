@@ -19,9 +19,9 @@ from models.blip import blip_decoder
 from diffusers import StableDiffusionPipeline
 
 
-device_id = 1
+device_id = 7
 
-device = torch.device('cuda:{}'.format(device_id) if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:{}'.format(device_id%4) if torch.cuda.is_available() else 'cpu')
 
 blip_image_eval_size = 384
 blip_model_url = 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model*_base_caption.pth'
