@@ -20,6 +20,7 @@ from diffusers import StableDiffusionPipeline
 
 
 device_id = 7
+root = "/data/workspace/datasets/sd-caption/"
 
 device = torch.device('cuda:{}'.format(device_id%4) if torch.cuda.is_available() else 'cpu')
 
@@ -106,11 +107,13 @@ def interrogate(image, models):
     flaves = ', '.join([f"{x[0]}" for x in bests[4]])
     medium = bests[0][0][0]
 
-    # import pdb;pdb.set_trace()
     if caption.startswith(medium):
-        return "{} {}, {}, {}, {}".format(caption, bests[1][0][0], bests[2][0][0], bests[3][0][0], flaves)
+        # return "{} {}, {}, {}, {}".format(caption, bests[1][0][0], bests[2][0][0], bests[3][0][0], flaves)
+        return "{}".format(caption)
     else:
-        return "{}, {} {}, {}, {}, {}".format(caption, medium, bests[1][0][0], bests[2][0][0], bests[3][0][0], flaves)
+        # return "{}, {} {}, {}, {}, {}".format(caption, medium, bests[1][0][0], bests[2][0][0], bests[3][0][0], flaves)
+        return "{}".format(caption)
+
         # print(f"\n\n{caption}, {medium} {bests[1][0][0]}, {bests[2][0][0]}, {bests[3][0][0]}, {flaves}")
 
 data_path = "./clip-interrogator/data/"
@@ -167,7 +170,6 @@ pipe = StableDiffusionPipeline.from_pretrained(
 # else:
 #     image = Image.open(image_path_or_url).convert('RGB')
 
-root = "/data/workspace/datasets/diffusion/"
 
 section = "0000"+str(device_id)
 
@@ -199,3 +201,19 @@ for idx, path in enumerate(os.listdir(os.path.join(root, section))):
 
         except:
             print("error")
+
+
+# da = create(text_prompts='a painting of a woman in a blue dress in a forest, an art deco painting by Tran Nguyen, featured on cgsociety, fantasy art, enchanting, pre-raphaelite, daz3d.', skip_steps=100)
+# da = create(text_prompts='a little girl wearing sunglasses on the beach, a stock photo by Lilia Alvarado, shutterstock contest winner, magical realism, stock photo, stockphoto, anamorphic lens flare.', skip_steps=100)
+# da = create(text_prompts='a tower of cupcakes with roses on top, a pastel by Irene and Laurette Patten, trending on pinterest, rococo, rococo, made of flowers, whimsical.', skip_steps=100)
+# da = create(text_prompts='a wooden bowl with a drawing of a bear on it, a woodcut by Yuko Tatsushima, pinterest contest winner, mingei, creative commons attribution, ambrotype, woodcut.', skip_steps=100)
+# da = create(text_prompts="a baby doll with a pink dress and bonnet, a child's drawing by Cicely Mary Barker, featured on behance, socialist realism, childs drawing, storybook illustration, repeating pattern.", skip_steps=100)
+# da = create(text_prompts='a painting of a woman standing in a field by Peder Severin Krøyer, pinterest, american impressionism, impressionism, pre-raphaelite, painterly.', skip_steps=100)
+# da = create(text_prompts='a little girl wearing sunglasses on the beach, a stock photo by Lilia Alvarado, shutterstock contest winner, magical realism, stock photo, stockphoto, anamorphic lens flare.', skip_steps=100)
+# da = create(text_prompts='a little girl wearing sunglasses on the beach, a stock photo by Lilia Alvarado, shutterstock contest winner, magical realism, stock photo, stockphoto, anamorphic lens flare.', skip_steps=100)
+
+
+
+
+
+
