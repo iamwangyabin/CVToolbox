@@ -19,8 +19,9 @@ from models.blip import blip_decoder
 from diffusers import StableDiffusionPipeline
 
 
-device_id = 7
-root = "/data/workspace/datasets/sd-caption/"
+device_id = 11
+root = "/data/workspace/datasets/diffusion/"
+section = "000"+str(device_id)
 
 device = torch.device('cuda:{}'.format(device_id%4) if torch.cuda.is_available() else 'cpu')
 
@@ -171,7 +172,6 @@ pipe = StableDiffusionPipeline.from_pretrained(
 #     image = Image.open(image_path_or_url).convert('RGB')
 
 
-section = "0000"+str(device_id)
 
 imgname = 0
 for idx, path in enumerate(os.listdir(os.path.join(root, section))):
