@@ -9,6 +9,9 @@ import re
 import shutil
 import time
 from multiprocessing import Pool, cpu_count
+import numpy as np
+
+
 
 import requests
 import tqdm
@@ -23,54 +26,93 @@ from selenium.webdriver.support.wait import WebDriverWait
 import io
 from PIL import Image
 
-
-
-
-header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"}
-
-
-driver = webdriver.Chrome(options=webdriver.ChromeOptions())
-driver.get("https://images.google.com/")
-
-image_button = driver.find_element(By.CLASS_NAME, 'nDcEnd') # 找到那个摄像机的类
-image_button.send_keys(Keys.ENTER)
-
-
-# 直接传url比较简单，还可以二次校验
-upload_url = driver.find_element(By.CLASS_NAME, 'cB9M7')
-
-
 url = 'https://instagram.fsin4-1.fna.fbcdn.net/v/t51.2885-15/277922118_674380763885312_8005111782321234355_n.jpg?stp=dst-jpg_e35_s640x640_sh0.08&cb=2d435ae8-0fbdf7c6&_nc_ht=instagram.fsin4-1.fna.fbcdn.net&_nc_cat=108&_nc_ohc=4kUHd3HgGWAAX9NQGjZ&edm=APU89FABAAAA&ccb=7-5&oh=00_AT-ANuZAQDSvDQDeF5be2o-X6EEIBEXZPX9_qvzMFA2nog&oe=6321232B&_nc_sid=86f79a'
-upload_url.send_keys(url)
-# 点击一下search 之前最好等待一下
-search_button = driver.find_element(By.CLASS_NAME, 'Qwbd3')
-search_button.send_keys(Keys.ENTER)
-
-# 调整框框让他全选 suanle
-# bbox = driver.find_element(By.CLASS_NAME, 'm8mnA')
-
-# 直接把所有图都扒拉下来
-allImages = driver.find_elements(By.TAG_NAME, "img")
-uris=[]
-for image in allImages:
-    src = image.get_attribute("src")
-    uris.append(src)
-    pos = len(src) - src[::-1].index('/')
 
 
-# 开始验证 1不是图的不要
+def start_search_google(img_url):
+    # first download is image
+    img_content = requests.get(img_url).content
+    img_file = io.BytesIO(img_content)
+    raw_image = Image.open(img_file)
+    raw_image_size = raw_image.size
+    selected_urls = []
+    selected_imgs = []
+    if min(raw_image_size) > 256:
+        driver = webdriver.Chrome(options=webdriver.ChromeOptions())
+        driver.set_window_position(0, 0)
+        driver.set_window_size(300, 1000)
+        driver.get("https://images.google.com/")
+        image_button = driver.find_element(By.CLASS_NAME, 'nDcEnd')  # 找到那个摄像机的类
+        image_button.send_keys(Keys.ENTER)
+        time.sleep(3)
+        # 直接传url比较简单，还可以二次校验
+        upload_url = driver.find_element(By.CLASS_NAME, 'cB9M7')
+        upload_url.send_keys(img_url)
+        time.sleep(3)
+        # 点击一下search 之前最好等待一下
+        search_button = driver.find_element(By.CLASS_NAME, 'Qwbd3')
+        search_button.send_keys(Keys.ENTER)
+        time.sleep(3)
+        # driver.execute_script("window.scrollTo(0, 300);")
+        # target = driver.find_element(By.CLASS_NAME, 'Qwbd3')
+        for i in range(100):
+            driver.execute_script("window.scrollBy(0,1000)")
+            # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        import pdb;pdb.set_trace()
+
+        time.sleep(1)
+        # 调整框框让他全选 suanle
+        # bbox = driver.find_element(By.CLASS_NAME, 'm8mnA')
+        # 直接把所有图都扒拉下来
+        SimilarImagesURLs = driver.find_elements(By.TAG_NAME, "img")
+        SimilarAllURLs = []
+        for image in SimilarImagesURLs:
+            src = image.get_attribute("src")
+            SimilarAllURLs.append(src)
+        # 开始验证 图太小的不要
+        for url in SimilarAllURLs:
+            if re.match(r'^https?:/{2}\w.+$', url):
+                img_content = requests.get(url).content
+                img_file = io.BytesIO(img_content)
+                image = Image.open(img_file)
+                if min(image.size)>=200:
+                    selected_urls.append(url)
+                    selected_imgs.append(image)
+        driver.close()
+    return raw_image, selected_urls, selected_imgs
 
 
 
-img_content = requests.get(uris[0]).content
-img_file = io.BytesIO(img_content)
-image = Image.open(img_file)
+with open(r'./download/delle/delle.txt',"r",encoding='utf-8') as f:
+    all_raw_urls = f.readlines()
+
+save_dir = "./download/delle/"
+all_data = {}
+for idx, raw_url in enumerate(all_raw_urls):
+    raw_url = raw_url.split()[0]
+    raw_image, selected_urls, selected_imgs = start_search_google(raw_url)
+    all_data[idx] = {'raw_url':raw_url, 'raw_image':raw_image, 'selected_urls':selected_urls, 'selected_imgs':selected_imgs}
+
+    os.mkdir(os.path.join(save_dir, str(idx)))
+
+    raw_image.save(os.path.join(save_dir, str(idx), "1_"+str(idx).zfill(6)+".jpeg"), "JPEG")
+
+    for simg in selected_imgs:
+        simg.save(os.path.join(save_dir, str(idx), "0_"+str(idx).zfill(6)+".jpeg"), "JPEG")
+
+np.save('delle_processed.npy', all_data)
+import pdb;pdb.set_trace()
 
 
 
 
 
-#
+
+
+
+
+
+
 # class GoogleSearcher:
 #     def __init__(self, download="download", sleep_time=1):
 #         super().__init__()
