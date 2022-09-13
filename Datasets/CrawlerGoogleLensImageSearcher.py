@@ -1,7 +1,5 @@
 # coding=utf-8
 
-# modified from https://www.cnblogs.com/willwell/p/google_image_search.html
-
 import base64
 import hashlib
 import os
@@ -46,22 +44,6 @@ from PIL import Image
 # instances = driver.find_element(By.CLASS_NAME, 'Vd9M6')
 # SimilarImagesURLs = driver.find_elements(By.TAG_NAME, "img")
 # instance.find_element(By.CLASS_NAME, 'UAiK1e')
-
-
-def start_search_laion(img_url):
-    img_content = requests.get(img_url).content
-    img_file = io.BytesIO(img_content)
-    raw_image = Image.open(img_file)
-    raw_image_size = raw_image.size
-    selected_urls = []
-    selected_imgs = []
-    selected_captions = []
-    if min(raw_image_size) > 256:
-
-
-        
-
-
 
 
 def start_search_google(img_url):
@@ -147,10 +129,10 @@ def start_search_google(img_url):
 #
 # np.save('delle_processed.npy', all_data)
 
-with open(r'./download/imagen/imagen.txt',"r",encoding='utf-8') as f:
+with open(r'delle_google/download/imagen/imagen.txt', "r", encoding='utf-8') as f:
     all_raw_urls = f.readlines()
 
-save_dir = "./download/imagen/"
+save_dir = "delle_google/download/imagen/"
 all_data = {}
 for idx, raw_url in enumerate(all_raw_urls):
     raw_url = raw_url.split()[0]
