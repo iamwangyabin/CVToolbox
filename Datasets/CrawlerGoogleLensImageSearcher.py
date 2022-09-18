@@ -129,10 +129,10 @@ def start_search_google(img_url):
 #
 # np.save('delle_processed.npy', all_data)
 
-with open(r'delle_google/download/imagen/imagen.txt', "r", encoding='utf-8') as f:
+with open(r'retrieval_google/download/imagen/imagen.txt', "r", encoding='utf-8') as f:
     all_raw_urls = f.readlines()
 
-save_dir = "delle_google/download/imagen/"
+save_dir = "retrieval_google/download/imagen/"
 all_data = {}
 for idx, raw_url in enumerate(all_raw_urls):
     raw_url = raw_url.split()[0]
@@ -158,24 +158,3 @@ np.save('imagen_processed.npy', all_data)
 
 
 
-
-
-# f = open('delleurls','r')
-# alldata = f.readlines()
-# urls = []
-# for line in alldata:
-#     parse=line.split()
-#     if len(parse)!=0:
-#         urls.append(parse[2].replace('"',''))
-#
-#
-# l=open('delle.txt','w', encoding='utf-8')
-#
-#
-#
-# #保存数据txt文件
-# with open(r'delle.txt',"w",encoding='utf-8') as l:
-#     for var in urls:
-#         l.write(str(var) + '\n')
-#
-# l.close()

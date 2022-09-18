@@ -23,12 +23,32 @@ headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 }
 
-with open(r'./delle_laion/delle.txt', "r", encoding='utf-8') as f:
-    all_raw_urls = f.readlines()
+### delle
+# with open(r'./delle_laion/delle.txt', "r", encoding='utf-8') as f:
+#     all_raw_urls = f.readlines()
+# save_dir = "./delle_laion/download"
+# if not os.path.exists(save_dir):
+#     os.mkdir(save_dir)
+###########
 
-save_dir = "./delle_laion/download"
+### midjourney
+# with open(r'./mj_laion/mj.txt', "r", encoding='utf-8') as f:
+#     all_raw_urls = f.readlines()
+# save_dir = "./mj_laion/download"
+# if not os.path.exists(save_dir):
+#     os.mkdir(save_dir)
+###########
+
+
+
+### imagen
+with open(r'./imagen_laion/imagen.txt', "r", encoding='utf-8') as f:
+    all_raw_urls = f.readlines()
+save_dir = "./imagen_laion/download"
 if not os.path.exists(save_dir):
     os.mkdir(save_dir)
+###########
+
 
 all_data = {}
 
@@ -86,4 +106,4 @@ for idx, raw_url in enumerate(all_raw_urls):
     except:
         print("error delle image:\t" + raw_url)
 
-np.save('delle_laion.npy', all_data)
+np.save('imagen_laion.npy', all_data)
